@@ -1,0 +1,42 @@
+{
+  "name": "nexus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "clean": "rm -rf ./dist/*",
+    "build": "tsc --build .",
+    "clean:build": "npm run clean && npm run build",
+    "tsc:watch": "tsc --watch",
+    "node:watch": "node --watch-path ./dist ./dist/index.js"
+  },
+  "engines": {
+    "npm": ">=10.2.3",
+    "node": ">=18.20.4"
+  },
+  "dependencies": {
+    "telnyx": "^2.0.0",
+    "typescript": "^5.7.3",
+    "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.6.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^20.11.28",
+    "@types/ws": "^8.5.14",
+    "eslint": "^8.57.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^7.15.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faranalytics/nexus.git"
+  },
+  "author": "FAR",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/faranalytics/nexus/issues"
+  },
+  "homepage": "https://github.com/faranalytics/nexus#readme",
+  "type": "module"
+}
