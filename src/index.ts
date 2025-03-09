@@ -72,8 +72,8 @@ server.on('request', async (req: http.IncomingMessage, res: http.ServerResponse<
 
 server.on('upgrade', (req: http.IncomingMessage, socket: Duplex, head: Buffer) => {
     console.log('upgrade');
-    wss.handleUpgrade(req, socket, head, function done(ws) {
-        wss.emit('connection', ws, req);
+    wss.handleUpgrade(req, socket, head, function done(client: ws.WebSocket, request: http.IncomingMessage) {
+        wss.emit('connection', client, request);
     });
 });
 
