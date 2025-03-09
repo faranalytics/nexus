@@ -7,6 +7,10 @@ import * as ws from 'ws';
 import { once } from 'node:events';
 import { Writable, Duplex } from 'node:stream';
 import { API_KEY } from './secrets.js';
+import { Telnyx } from 'telnyx';
+import type { ResponseBody } from './types.d.ts';
+
+const telnyx = new Telnyx(API_KEY);
 
 class StreamBuffer extends Writable {
     public buffer: Buffer = Buffer.allocUnsafe(0);
@@ -27,13 +31,6 @@ const options = {
 const server = https.createServer(options);
 const wss = new ws.WebSocketServer({ noServer: true });
 
-interface RequestData {
-    data: {
-        event_type: string, payload: {
-            call_control_id: string
-        }
-    }
-};
 
 
 server.on('request', async (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>) => {
@@ -44,43 +41,31 @@ server.on('request', async (req: http.IncomingMessage, res: http.ServerResponse<
     const streamBuffer = new StreamBuffer();
     req.pipe(streamBuffer);
     await once(req, 'end');
-    const body: RequestData = JSON.parse(streamBuffer.buffer.toString('utf-8'));
-    console.log(body);
+    const body: ResponseBody = JSON.parse(streamBuffer.buffer.toString('utf-8'));
+    const callControlId = body.data.payload.call_control_id;
     if (body.data.event_type == 'call.initiated') {
-        const callControlId = body.data.payload.call_control_id;
-        try {
-            let response: Response;
-
-            response = await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/answer`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`
-                },
-                method: 'POST'
-            });
-
-            console.log(await response.json());
-
-            response = await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/streaming_start`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`
-                },
-                method: 'POST',
-                body: JSON.stringify({
-                    'stream_url': 'wss://farar.net:3443/',
-                    // 'stream_track': 'both_tracks',
-                    'stream_bidirectional_mode': 'rtp'
-                })
-            });
-
-        }
-        catch (e) {
-            console.error(e);
-        }
+        const response = await telnyx.calls.answer(callControlId, {
+            stream_track: 'inbound_track',
+            send_silence_when_idle: false,
+            webhook_url_method: 'POST',
+            transcription: false,
+            record_channels: 'single',
+            record_format: 'mp3',
+            record_max_length: 0,
+            record_timeout_secs: 0,
+            record_track: 'both'
+        });
     }
+    else if (body.data.event_type == 'call.answered') {
+        console.log('call.answered');
+        const response = await telnyx.calls.streamingStart(callControlId, {
+            stream_track: 'inbound_track',
+            enable_dialogflow: false,
+            stream_url: 'wss://farar.net:3443/',
+            stream_bidirectional_mode: 'rtp'
+        });
+    }
+
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end();
 });
@@ -108,7 +93,6 @@ wss.on('connection', async (socket: ws.WebSocket, req: http.IncomingMessage) => 
             }));
         }
     });
-
 });
 
 server.listen(3443, '0.0.0.0');
