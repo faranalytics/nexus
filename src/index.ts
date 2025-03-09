@@ -8,7 +8,7 @@ import { once } from 'node:events';
 import { Writable, Duplex } from 'node:stream';
 import { API_KEY } from './secrets.js';
 import { Telnyx } from 'telnyx';
-import type { ResponseBody } from './types.d.ts';
+import type { HTTPRequestBody } from './types.d.ts';
 
 const telnyx = new Telnyx(API_KEY);
 
@@ -41,7 +41,8 @@ server.on('request', async (req: http.IncomingMessage, res: http.ServerResponse<
     const streamBuffer = new StreamBuffer();
     req.pipe(streamBuffer);
     await once(req, 'end');
-    const body: ResponseBody = JSON.parse(streamBuffer.buffer.toString('utf-8'));
+    const body: HTTPRequestBody = JSON.parse(streamBuffer.buffer.toString('utf-8'));
+    console.log(body);
     const callControlId = body.data.payload.call_control_id;
     if (body.data.event_type == 'call.initiated') {
         const response = await telnyx.calls.answer(callControlId, {
