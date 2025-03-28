@@ -1,0 +1,22 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "scripts": {
+    "clean": "rm -rf ./dist/*",
+    "build": "tsc --build .",
+    "clean:build": "npm run clean && npm run build",
+    "tsc:watch": "tsc --watch",
+    "node:watch": "node --watch-path ./dist --watch-path ../dist ./dist/index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  },
+  "type": "module",
+  "dependencies": {
+    "@farar/nexus": ".."
+  }
+}
