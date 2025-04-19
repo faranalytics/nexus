@@ -1,5 +1,6 @@
 export interface CartesiaMessage {
   type:string;
+  context_id: string;
 }
 
 export interface CartesiaTimestamp {

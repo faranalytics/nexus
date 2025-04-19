@@ -31,7 +31,6 @@ export class TelnyxVoIP implements VoIP {
   public setWebSocket(webScoket: ws.WebSocket) {
     this.webSocket = webScoket;
     this.webSocket.on("message", this.onWebSocketMessage);
-    this.webSocket.on("error", log.error);
     this.emitter.emit("streaming");
   }
 

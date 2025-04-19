@@ -77,6 +77,8 @@ export class CartesiaTTS extends EventEmitter<CartesiaTTSEvents> implements TTS 
       try {
         await this.mutex;
 
+        this.uuid = uuid;
+
         if (this.aborts.has(uuid)) {
           this.aborts.delete(uuid);
           return;
@@ -95,15 +97,15 @@ export class CartesiaTTS extends EventEmitter<CartesiaTTSEvents> implements TTS 
             id: "694f9389-aac1-45b6-b726-9d9369183238",
           },
           add_timestamps: true,
-          output_format: this.outputFormat
+          output_format: this.outputFormat,
+          continue: false
         };
 
         log.info(JSON.stringify(transcript));
-
-        this.webSocket.send(JSON.stringify({ ...options, ...{ transcript } }));
+        const message = JSON.stringify({ ...options, ...{ transcript } });
+        this.webSocket.send(message);
         this.done = false;
         this.start = true;
-        this.uuid = uuid;
         this.timeout = setTimeout(this.onTime);
         await once(this.emitter, "transcript_dispatched");
       }
@@ -116,15 +118,22 @@ export class CartesiaTTS extends EventEmitter<CartesiaTTSEvents> implements TTS 
   protected onMessage = (data: string): void => {
     const message = JSON.parse(data) as CartesiaMessage;
 
+    if (message.context_id != this.uuid) {
+      return;
+    }
+
+    if (this.aborts.has(this.uuid)) {
+      this.cancelAudio();
+      return;
+    }
+
     if (message.type == "chunk") {
       this.audio = Buffer.concat([this.audio, Buffer.from((message as CartesiaChunk).data, "base64")]);
     }
     else if (message.type == "done") {
       log.info(message);
       this.done = true;
-      if (this.uuid) {
-        this.emit("done", this.uuid);
-      }
+      this.emit("done", this.uuid);
     }
     else {
       log.info(message);
@@ -132,59 +141,59 @@ export class CartesiaTTS extends EventEmitter<CartesiaTTSEvents> implements TTS 
   };
 
   protected onTime = (): void => {
-    log.info("CartesiaTTs/onTime");
-
-    if (this.uuid && this.aborts.has(this.uuid)) {
-      void (async () => {
-        try {
-          log.notice(`Abort: ${this.uuid ?? ""}`, "CartesiaTTs/onTime");
-          if (!this.done) {
-            this.webSocket.send(JSON.stringify({ context_id: this.uuid, cancel: true }));
-            await once(this, "done");
-          }
-        }
-        catch (err) {
-          log.error(err);
-        }
-        finally {
-          this.audio = Buffer.alloc(0);
-          clearTimeout(this.timeout);
-          if (this.uuid) {
-            this.aborts.delete(this.uuid);
-            this.emitter.emit("transcript_dispatched", this.uuid);
-          }
-        }
-      })();
-      return;
-    }
-
-    let audio;
-    if (this.start) {
-      audio = this.audio.subarray(0, 8000).toString("base64");
-      this.audio = this.audio.subarray(8000);
-      this.start = false;
-    }
-    else {
-      audio = this.audio.subarray(0, 4000).toString("base64");
-      this.audio = this.audio.subarray(4000);
-    }
-
-    if (audio && this.uuid) {
-      this.emitter.emit("audio_out", this.uuid, audio);
-      log.info("CartesiaTTs/onTime/emit/audio_out");
-    }
-
-    if (!this.done || this.audio.length != 0) {
-      this.timeout = setTimeout(this.onTime, 500);
-    }
-
-    if (this.done && this.audio.length == 0) {
+    try {
+      log.info("CartesiaTTs/onTime");
       if (this.uuid) {
-        this.emitter.emit("transcript_dispatched", this.uuid);
-        log.info("CartesiaTTs/onTime/emit/transcript_dispatched");
+        if (this.aborts.has(this.uuid)) {
+          this.cancelAudio();
+          return;
+        }
+
+        let audio;
+        if (this.start) {
+          audio = this.audio.subarray(0, 8000).toString("base64");
+          this.audio = this.audio.subarray(8000);
+          this.start = false;
+        }
+        else {
+          audio = this.audio.subarray(0, 4000).toString("base64");
+          this.audio = this.audio.subarray(4000);
+        }
+
+        if (audio) {
+          this.emitter.emit("audio_out", this.uuid, audio);
+          log.info("CartesiaTTs/onTime/emit/audio_out");
+        }
+
+        if (!this.done || this.audio.length != 0) {
+          this.timeout = setTimeout(this.onTime, 500);
+        }
+
+        if (this.done && this.audio.length == 0) {
+          this.emitter.emit("transcript_dispatched", this.uuid);
+          log.info("CartesiaTTs/onTime/emit/transcript_dispatched");
+        }
       }
     }
+    catch (err) {
+      log.error(err);
+    }
   };
+
+  protected cancelAudio() {
+    if (this.uuid) {
+      log.notice(`Abort: ${this.uuid ?? ""}`, "CartesiaTTs/onTime");
+      if (!this.done) {
+        const message = JSON.stringify({ context_id: this.uuid, cancel: true });
+        this.webSocket.send(message);
+      }
+      this.audio = Buffer.alloc(0);
+      clearTimeout(this.timeout);
+      this.aborts.delete(this.uuid);
+      this.emitter.emit("transcript_dispatched", this.uuid);
+      delete this.uuid;
+    }
+  }
 
   public onDispose = (): void => {
     this.webSocket.send(JSON.stringify({ context_id: this.uuid, cancel: true }));

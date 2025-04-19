@@ -5,7 +5,7 @@ export { CartesiaTTS, CartesiaTTSOptions } from "./components/cartesia/cartesia_
 export { Dialogue, DialogueOptions } from "./commons/dialogue.js";
 export { ControllerProxy } from "./commons/controller_proxy.js";
 export { VoIPProxy } from "./commons/voip_proxy.js";
-export { VoIPEvents } from "./interfaces/voip.js";
+export { VoIPEvents, VoIP } from "./interfaces/voip.js";
 export { WorkerPool } from "./commons/worker_pool.js";
 export { Metadata } from "./commons/metadata.js";
 export { StreamBuffer } from "./commons/stream_buffer.js";

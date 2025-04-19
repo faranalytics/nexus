@@ -28,25 +28,25 @@ export class WorkerPool {
       const worker = new worker_threads.Worker(new URL(`${this.workerURL}?${Date.now().toString()}`));
       worker.on("error", log.error);
       const agent = new Agent(worker);
-      const _uuid = randomUUID();
+      const uuid = randomUUID();
       voip.emitter.on("audio_in", (data: string) => {
-        agent.call(_uuid, "audio_in", data).catch(log.error);
+        agent.call(uuid, "audio_in", data).catch(log.error);
       });
       voip.emitter.on("streaming", () => {
-        agent.call(_uuid, "streaming").catch(log.error);
+        agent.call(uuid, "streaming").catch(log.error);
       });
       voip.emitter.on("metadata", () => {
-        agent.call(_uuid, "metadata").catch(log.error);
+        agent.call(uuid, "metadata").catch(log.error);
       });
       voip.emitter.on("dispose", ()=>{
-        agent.deregister(_uuid);
+        agent.deregister(uuid);
       });
-      agent.register(_uuid, (event: string, uuid: UUID, data: string) => {
+      agent.register(uuid, (event: string, uuid: UUID, data: string) => {
         if (event == "audio_out") {
           voip.onAudioOut(uuid, data);
         }
       });
-      agent.call("init", _uuid).catch(log.error);
+      agent.call("init", uuid).catch(log.error);
     }
     catch (err) {
       log.error(err);

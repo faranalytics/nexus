@@ -79,7 +79,7 @@ export class TelnyxController extends EventEmitter<ControllerEvents> {
           }
         }
         else if (body.data.event_type == "call.answered") {
-          log.notice(body, "TelnyxController/onRequest/call.answered");
+          log.info(body, "TelnyxController/onRequest/call.answered");
           await this.client.calls.streamingStart(callControlId, {
             stream_track: "inbound_track",
             enable_dialogflow: false,
@@ -90,7 +90,7 @@ export class TelnyxController extends EventEmitter<ControllerEvents> {
           });
         }
         else if (body.data.event_type == "call.hangup") {
-          log.notice(body, "TelnyxController/onRequest/call.hangup");
+          log.info(body, "TelnyxController/onRequest/call.hangup");
           const registrant = this.registrar.get(callControlId);
           if (registrant) {
             registrant.emitter.emit("dispose");
@@ -99,13 +99,13 @@ export class TelnyxController extends EventEmitter<ControllerEvents> {
           }
         }
         else if (body.data.event_type == "streaming.started") {
-          log.notice(body, "TelnyxController/onRequest/streaming.started");
+          log.info(body, "TelnyxController/onRequest/streaming.started");
         }
         else if (body.data.event_type == "streaming.stopped") {
-          log.notice(body, "TelnyxController/onRequest/streaming.stopped");
+          log.info(body, "TelnyxController/onRequest/streaming.stopped");
         }
         else {
-          log.notice(body, "TelnyxController/onRequest");
+          log.info(body, "TelnyxController/onRequest");
         }
         res.writeHead(200, { "Content-Type": "text/plain" });
         res.end();
@@ -127,7 +127,7 @@ export class TelnyxController extends EventEmitter<ControllerEvents> {
           const message = JSON.parse((data[0] as ws.RawData).toString()) as WebSocketMessage;
           if (message.event == "start") {
             try {
-              log.info(JSON.stringify(message, null, 2), "telnyx_voip/onWebSocketMessage/event/start");
+              log.info(JSON.stringify(message, null, 2), "TelnyxController/onConnection/event/start");
               const callControlId = message.start.call_control_id;
               const voip = this.registrar.get(callControlId);
               if (voip) {

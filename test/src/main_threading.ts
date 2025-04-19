@@ -4,7 +4,7 @@ import * as ws from "ws";
 import { once } from "node:events";
 import { TelnyxController, WorkerPool, log, SyslogLevel } from "@farar/nexus";
 
-log.setLevel(SyslogLevel.INFO);
+log.setLevel(SyslogLevel.NOTICE);
 
 const {
   TELNYX_API_KEY = "",
