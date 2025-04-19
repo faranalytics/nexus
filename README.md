@@ -21,11 +21,11 @@ const dialogue = new Dialogue({ voip, stt, tts, agent });
 dialogue.start();
 ```
 
-Working examples of `VoIP`, `STT`, `Agent`, and `TTS` implementations are provided in the [implementations](https://github.com/faranalytics/nexus/tree/main/src/components) directory.  You can use an implementation as-is, subclass it, or implement your own.
+Working examples of `VoIP`, `STT`, `Agent`, and `TTS` implementations are provided in the [implementations](https://github.com/faranalytics/nexus/tree/main/src/components) directory. You can use an implementation _as-is_, subclass it, or implement your own.
 
-- VoIP: A Telnyx Controller and Telnyx VoIP implementation is provided.
+- VoIP: A Telnyx Controller and Telnyx VoIP implementation.
 - STT: An implementation that uses Deepgram for speech to text.
-- Agent: A simple agent implementation is provided that uses OpenAI.
+- Agent: A simple OpenAI Agent implementation.
 - TTS: An implementation that uses Cartesia for text to speech.
 
 ## Development Installation
