@@ -4,9 +4,31 @@ A modular `VoIP` ➞ `STT` ➞ `AI Agent` ➞ `TTS` ➞ `VoIP` implementation.
 
 ## Introduction
 
-Nexus is a modular `VoIP` ➞ `STT` ➞ `AI Agent` ➞ `TTS` ➞ `VoIP` implementation. It provides a basic _demonstrational_ working example of using Telnyx for VoIP, Deepgram for STT, OpenAI for Conversational AI, and Cartesia for TTS. You can use one of the already implemented modules or implement your own.
+Nexus is a modular `VoIP` ➞ `STT` ➞ `AI Agent` ➞ `TTS` ➞ `VoIP` implementation. Interfaces are provided for each component of the VoIP application. A Nexus application is contructed by passing a `VoIP`, `STT`, `Agent`, and `TTS` implementation into a `Dialogue` implementation.
 
-## Installation
+```ts
+const stt = new DeepgramSTT({
+  apiKey: DEEPGRAM_API_KEY,
+  openAIAPIKey: OPENAI_API_KEY,
+});
+const tts = new CartesiaTTS({ apiKey: CARTESIA_API_KEY });
+const agent = new OpenAIAgent({
+  apiKey: OPENAI_API_KEY,
+  system: OPENAI_SYSTEM_MESSAGE,
+  greeting: OPENAI_GREETING_MESSAGE,
+});
+const dialogue = new Dialogue({ voip, stt, tts, agent });
+dialogue.start();
+```
+
+Basic _demonstrational_ working examples of `VoIP`, `STT`, `Agent`, and `TTS` implementation are provided in [implementations](https://github.com/faranalytics/nexus/tree/main/src/components) directory.
+
+- VoIP: A Telnyx Controller and Telnyx VoIP implementation is provided.
+- STT: An implementation that uses Deepgram for speech to text.
+- Agent: A simple agent implementation is provided that uses OpenAI.
+- TTS: An implementation that uses Cartesia for text to speech.
+
+## Development Installation
 
 ### Clone the Nexus repository and build the package
 
@@ -59,7 +81,6 @@ import {
   CartesiaTTS,
   OpenAIAgent,
   Dialogue,
-  WebSocketEvents,
   log,
   SyslogLevel,
 } from "@farar/nexus";

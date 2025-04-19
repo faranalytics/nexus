@@ -2,8 +2,7 @@ import * as https from "node:https";
 import * as fs from "node:fs";
 import * as ws from "ws";
 import { once } from "node:events";
-import { TelnyxController, DeepgramSTT, CartesiaTTS, OpenAIAgent, Dialogue, log, SyslogLevel } from "@farar/nexus";
-import { VoIP } from "../../dist/interfaces/voip.js";
+import { TelnyxController, DeepgramSTT, CartesiaTTS, OpenAIAgent, Dialogue, log, SyslogLevel, VoIP } from "@farar/nexus";
 
 log.setLevel(SyslogLevel.NOTICE);
 
