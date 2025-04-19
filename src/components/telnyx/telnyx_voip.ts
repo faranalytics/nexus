@@ -1,4 +1,4 @@
-import { EventEmitter } from "stream";
+import { EventEmitter } from "node:events";
 import { VoIP, VoIPEvents } from "../../interfaces/voip.js";
 import { UUID } from "crypto";
 import * as ws from "ws";

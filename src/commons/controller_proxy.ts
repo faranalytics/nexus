@@ -1,6 +1,6 @@
 import { Agent } from "port_agent";
 import { parentPort } from "node:worker_threads";
-import { EventEmitter } from "node:stream";
+import { EventEmitter } from "node:events";
 import { ControllerEvents } from "../interfaces/controller.js";
 import { UUID } from "node:crypto";
 import { VoIPProxy } from "./voip_proxy.js";

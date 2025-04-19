@@ -1,6 +1,6 @@
 import { UUID } from "node:crypto";
 import { VoIP, VoIPEvents } from "../interfaces/voip.js";
-import { EventEmitter } from "node:stream";
+import { EventEmitter } from "node:events";
 import { Agent } from "port_agent";
 import { log } from "./logger.js";
 import { Metadata } from "./metadata.js";
