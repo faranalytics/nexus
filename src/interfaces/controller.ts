@@ -1,6 +1,5 @@
-import { EventEmitter } from "node:events";
-import { VoIPEvents } from "./voip.js";
+import { VoIP } from "./voip.js";
 
 export interface ControllerEvents {
-  "init": [EventEmitter<VoIPEvents>]
+  "init": [VoIP]
 }

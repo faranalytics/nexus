@@ -3,7 +3,10 @@ export { OpenAIAgent, OpenAIAgentOptions } from "./components/openai/openai_agen
 export { DeepgramSTT, DeepgramSTTOptions } from "./components/deepgram/deepgram_stt.js";
 export { CartesiaTTS, CartesiaTTSOptions } from "./components/cartesia/cartesia_tts.js";
 export { Dialogue, DialogueOptions } from "./commons/dialogue.js";
+export { ControllerProxy } from "./commons/controller_proxy.js";
+export { VoIPProxy } from "./commons/voip_proxy.js";
 export { VoIPEvents } from "./interfaces/voip.js";
+export { WorkerPool } from "./commons/worker_pool.js";
 export { Metadata } from "./commons/metadata.js";
 export { StreamBuffer } from "./commons/stream_buffer.js";
 export { log, formatter, consoleHandler, SyslogLevel } from "./commons/logger.js";

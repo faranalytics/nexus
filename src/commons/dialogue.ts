@@ -1,56 +1,44 @@
-import { EventEmitter } from "node:events";
 import { Agent } from "../interfaces/agent.js";
 import { STT } from "../interfaces/stt.js";
 import { TTS } from "../interfaces/tts.js";
-import { VoIPEvents } from "../interfaces/voip.js";
-import { UUID } from "node:crypto";
-
-interface DialogueEvents {
-  "ready": []
-}
+import { VoIP } from "../interfaces/voip.js";
 
 export interface DialogueOptions {
+  voip: VoIP;
   stt: STT;
   tts: TTS;
   agent: Agent;
-  emitter: EventEmitter<VoIPEvents>;
 }
 
-export class Dialogue extends EventEmitter<DialogueEvents> {
+export class Dialogue {
 
-  public emitter: EventEmitter<VoIPEvents>;
-
+  protected voip: VoIP;
   protected stt: STT;
   protected tts: TTS;
   protected agent: Agent;
-  protected isStreaming: boolean;
-  protected audioOutQueue: string[];
 
-  constructor({ stt, tts, agent, emitter }: DialogueOptions) {
-    super();
+  constructor({ voip, stt, tts, agent }: DialogueOptions) {
+    this.voip = voip;
     this.stt = stt;
     this.tts = tts;
     this.agent = agent;
-    this.emitter = emitter;
-    this.isStreaming = false;
-    this.audioOutQueue = [];
+  }
 
-    emitter.on("audio_in", stt.onAudio);
-    emitter.on("streaming", agent.onStreaming);
-    emitter.on("metadata", agent.onMetadata);
-    emitter.on("dispose", stt.onDispose);
-    emitter.on("dispose", tts.onDispose);
-    emitter.on("dispose", agent.onDispose);
+  public start() {
+    this.voip.emitter.on("audio_in", this.stt.onAudio);
+    this.voip.emitter.on("streaming", this.agent.onStreaming);
+    this.voip.emitter.on("metadata", this.agent.onMetadata);
+    this.voip.emitter.on("dispose", this.stt.onDispose);
+    this.voip.emitter.on("dispose", this.tts.onDispose);
+    this.voip.emitter.on("dispose", this.agent.onDispose);
 
-    stt.emitter.on("transcript", agent.onTranscript);
-    stt.emitter.on("abort_audio", tts.onAbortAudio);
+    this.stt.emitter.on("transcript", this.agent.onTranscript);
+    this.stt.emitter.on("abort_audio", this.tts.onAbortAudio);
 
-    tts.emitter.on("audio_out", (uuid: UUID, data: string)=>{
-      this.emitter.emit("audio_out", uuid, data);
-    });
-    tts.emitter.on("transcript_dispatched", agent.onTranscriptDispatched);
+    this.tts.emitter.on("audio_out", this.voip.onAudioOut);
+    this.tts.emitter.on("transcript_dispatched", this.agent.onTranscriptDispatched);
 
-    agent.emitter.on("transcript", tts.onTranscript);
-    agent.emitter.on("abort_transcript", tts.onAbortTranscript);
+    this.agent.emitter.on("transcript", this.tts.onTranscript);
+    this.agent.emitter.on("abort_transcript", this.tts.onAbortTranscript);
   }
 }

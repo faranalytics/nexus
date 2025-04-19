@@ -1,3 +1,4 @@
+import EventEmitter from "node:events";
 import { Metadata } from "../commons/metadata.js";
 import { UUID } from "node:crypto";
 
@@ -8,4 +9,9 @@ export interface VoIPEvents {
   "abort_transcript": [UUID];
   "streaming": [];
   "dispose": [];
+}
+
+export interface VoIP {
+  emitter: EventEmitter<VoIPEvents>;
+  onAudioOut: (uuid: UUID, data: string) => void;
 }
