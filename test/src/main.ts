@@ -44,6 +44,7 @@ const controller = new TelnyxController({
 });
 
 controller.on("init", (voip: VoIP) => {
+  console.log("INIT");
   
   const stt = new DeepgramSTT({ apiKey: DEEPGRAM_API_KEY, openAIAPIKey: OPENAI_API_KEY });
   const tts = new CartesiaTTS({ apiKey: CARTESIA_API_KEY });

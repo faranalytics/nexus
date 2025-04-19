@@ -15,7 +15,6 @@ export class TelnyxVoIP implements VoIP {
 
   constructor() {
     this.emitter = new EventEmitter();
-
   }
 
   public onAudioOut = (uuid: UUID, data: string): void => {
@@ -46,7 +45,7 @@ export class TelnyxVoIP implements VoIP {
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
       const message = JSON.parse(data.toString()) as WebSocketMessage;
       if (message.event == "media") {
-        log.debug(JSON.stringify(message, null, 2), "telnyx_voip/onWebSocketMessage/event/media");
+        log.debug(JSON.stringify(message, null, 2), "TelnyxVoIP/onWebSocketMessage/event/media");
         this.emitter.emit("audio_in", message.media.payload);
       }
       else if (message.event == "start") {
@@ -61,11 +60,11 @@ export class TelnyxVoIP implements VoIP {
         this.emitter.removeAllListeners();
       }
       else {
-        log.info(JSON.stringify(message, null, 2), "telnyx_voip/onWebSocketMessage/event/unhandled");
+        log.info(JSON.stringify(message, null, 2), "TelnyxVoIP/onWebSocketMessage/event/unhandled");
       }
     }
     catch (err) {
-      log.error(err, "telnyx_voip/onWebSocketMessage");
+      log.error(err, "TelnyxVoIP/onWebSocketMessage");
       this.webSocket?.off("message", this.onWebSocketMessage);
     }
   };
