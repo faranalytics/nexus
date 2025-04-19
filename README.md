@@ -21,7 +21,7 @@ const dialogue = new Dialogue({ voip, stt, tts, agent });
 dialogue.start();
 ```
 
-Basic _demonstrational_ working examples of `VoIP`, `STT`, `Agent`, and `TTS` implementation are provided in [implementations](https://github.com/faranalytics/nexus/tree/main/src/components) directory.
+Working examples of `VoIP`, `STT`, `Agent`, and `TTS` implementations are provided in the [implementations](https://github.com/faranalytics/nexus/tree/main/src/components) directory.  You can use an implementation as-is, subclass it, or implement your own.
 
 - VoIP: A Telnyx Controller and Telnyx VoIP implementation is provided.
 - STT: An implementation that uses Deepgram for speech to text.
@@ -111,7 +111,6 @@ STREAM_URL = "wss://example.com:3443/"
 An [example](https://github.com/faranalytics/nexus/tree/main/example) application is provided in the example subpackage.
 
 ```ts
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as https from "node:https";
 import * as fs from "node:fs";
 import * as ws from "ws";
@@ -122,11 +121,9 @@ import {
   CartesiaTTS,
   OpenAIAgent,
   Dialogue,
-  WebSocketEvents,
-  log,
   SyslogLevel,
+  VoIP,
 } from "@farar/nexus";
-import { EventEmitter } from "node:events";
 
 const {
   TELNYX_API_KEY = "",
@@ -153,7 +150,7 @@ httpServer.listen(parseInt(PORT.toString()), HOST_NAME);
 
 await once(httpServer, "listening");
 
-log.info(`httpServer is listening on ${PORT.toString()}, ${HOST_NAME}`);
+log.notice(`httpServer is listening on ${PORT.toString()}, ${HOST_NAME}`);
 
 const webSocketServer = new ws.WebSocketServer({ noServer: true });
 
@@ -164,7 +161,7 @@ const controller = new TelnyxController({
   streamURL: STREAM_URL,
 });
 
-controller.on("init", (emitter: EventEmitter<WebSocketEvents>) => {
+controller.on("init", (voip: VoIP) => {
   const stt = new DeepgramSTT({
     apiKey: DEEPGRAM_API_KEY,
     openAIAPIKey: OPENAI_API_KEY,
@@ -175,8 +172,8 @@ controller.on("init", (emitter: EventEmitter<WebSocketEvents>) => {
     system: OPENAI_SYSTEM_MESSAGE,
     greeting: OPENAI_GREETING_MESSAGE,
   });
-
-  const dialogue = new Dialogue({ stt, tts, agent, emitter });
+  const dialogue = new Dialogue({ voip, stt, tts, agent });
+  dialogue.start();
 });
 ```
 
